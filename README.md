@@ -1,0 +1,2 @@
+该项目基于stm32f103vet6芯片和其内置的fsmc实现对由ili9341芯片驱动的lcd的显示
+使用FreeRTOS作为管理,LVGL作为图形库
