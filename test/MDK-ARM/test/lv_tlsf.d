@@ -1,0 +1,13 @@
+test\lv_tlsf.o: ..\MiddleWare\LVGL\GUI\lvgl\src\misc\lv_tlsf.c
+test\lv_tlsf.o: ..\MiddleWare\LVGL\GUI\lvgl\src\misc\../lv_conf_internal.h
+test\lv_tlsf.o: D:\keil\ARM\ARMCC\Bin\..\include\stdint.h
+test\lv_tlsf.o: ..\MiddleWare\LVGL\GUI\lvgl\src\misc\../lv_conf_kconfig.h
+test\lv_tlsf.o: ../MiddleWare/LVGL/GUI/lvgl/example/porting/../../lv_conf.h
+test\lv_tlsf.o: D:\keil\ARM\ARMCC\Bin\..\include\limits.h
+test\lv_tlsf.o: ..\MiddleWare\LVGL\GUI\lvgl\src\misc\lv_tlsf.h
+test\lv_tlsf.o: D:\keil\ARM\ARMCC\Bin\..\include\stddef.h
+test\lv_tlsf.o: ..\MiddleWare\LVGL\GUI\lvgl\src\misc\lv_mem.h
+test\lv_tlsf.o: D:\keil\ARM\ARMCC\Bin\..\include\string.h
+test\lv_tlsf.o: ..\MiddleWare\LVGL\GUI\lvgl\src\misc\lv_types.h
+test\lv_tlsf.o: ..\MiddleWare\LVGL\GUI\lvgl\src\misc\lv_log.h
+test\lv_tlsf.o: ..\MiddleWare\LVGL\GUI\lvgl\src\misc\lv_assert.h

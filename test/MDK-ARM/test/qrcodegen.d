@@ -1,0 +1,9 @@
+test\qrcodegen.o: ..\MiddleWare\LVGL\GUI\lvgl\src\extra\libs\qrcode\qrcodegen.c
+test\qrcodegen.o: D:\keil\ARM\ARMCC\Bin\..\include\assert.h
+test\qrcodegen.o: D:\keil\ARM\ARMCC\Bin\..\include\limits.h
+test\qrcodegen.o: D:\keil\ARM\ARMCC\Bin\..\include\stdlib.h
+test\qrcodegen.o: D:\keil\ARM\ARMCC\Bin\..\include\string.h
+test\qrcodegen.o: ..\MiddleWare\LVGL\GUI\lvgl\src\extra\libs\qrcode\qrcodegen.h
+test\qrcodegen.o: D:\keil\ARM\ARMCC\Bin\..\include\stdbool.h
+test\qrcodegen.o: D:\keil\ARM\ARMCC\Bin\..\include\stddef.h
+test\qrcodegen.o: D:\keil\ARM\ARMCC\Bin\..\include\stdint.h
