@@ -1,4 +1,12 @@
 /* USER CODE BEGIN Header */
+/*
+ * @Author: userName userEmail
+ * @Date: 2026-02-24 22:10:03
+ * @LastEditTime: 2026-02-25 01:41:04
+ * @FilePath: \test_EIDEd:\MCU\stm32\stm32_practise\VS+HAL\stm32_HAL-FreeRTOS-LVGL-\test\Core\Src\main.c
+ * @Description: 此项目用于FreeRTOS+LVGL,基于stm32F103VET6实现.
+ * 外设LCD使用ILI9341作为驱动芯片,使用FSMC进行16位并行传输
+ */
 /**
   ******************************************************************************
   * @file           : main.c
