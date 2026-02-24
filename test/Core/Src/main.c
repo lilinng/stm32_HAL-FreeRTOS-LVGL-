@@ -182,6 +182,7 @@ void Error_Handler(void)
   __disable_irq();
   while (1)
   {
+    /**************PB6LED闪烁代表进入error*****************/
     HAL_GPIO_TogglePin(GPIOB,GPIO_PIN_6);
     HAL_Delay(500);
   }

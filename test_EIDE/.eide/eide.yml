@@ -296,8 +296,7 @@ targets:
         - ../test/MiddleWare/LVGL/GUI_APP
         - ../test/MiddleWare/LVGL/GUI_APP/demos/stress
       libList: []
-    excludeList:
-      - <virtual_root>/Application
+    excludeList: []
     toolchain: AC5
     toolchainConfigMap:
       AC5:
