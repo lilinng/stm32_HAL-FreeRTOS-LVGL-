@@ -1,24 +1,11 @@
 /*
  * @Author: userName userEmail
  * @Date: 2026-02-24 21:14:15
- * @LastEditTime: 2026-02-25 01:21:46
+ * @LastEditTime: 2026-02-25 01:33:05
  * @FilePath: \test_EIDEd:\MCU\stm32\stm32_practise\VS+HAL\stm32_HAL-FreeRTOS-LVGL-\test\MiddleWare\LVGL\GUI_APP\LVGL_demo.c
- * @Description: 
+ * @Description: 用于测试FreeRTOS和LVGL的demo
  */
-/*
- * @Author: userName userEmail
- * @Date: 2026-02-24 21:14:15
- * @LastEditTime: 2026-02-24 21:55:26
- * @FilePath: \test_EIDEd:\MCU\stm32\stm32_practise\VS+HAL\stm32_HAL-FreeRTOS-LVGL-\test\MiddleWare\LVGL\GUI_APP\LVGL_demo.c
- * @Description: 
- */
-/*
- * @Author: userName userEmail
- * @Date: 2026-02-24 21:14:15
- * @LastEditTime: 2026-02-24 21:15:08
- * @FilePath: \test_EIDEd:\MCU\stm32\stm32_practise\VS+HAL\stm32_HAL-FreeRTOS-LVGL-\test\MiddleWare\LVGL\GUI_APP\LVGL_demo.c
- * @Description: 
- */
+/************************INCLUDE***************************************/
 #include "stm32f1xx_hal.h"
 #include "FreeRTOS.h"
 #include "task.h"
@@ -41,6 +28,10 @@ TaskHandle_t Lvgl_Task_Handle;
 #define LED_TASK_STACK_SIZE 128
 TaskHandle_t Led_Task_Handle;
 
+/**
+ * @description: lvgl任务中调用的显示示例
+ * @return {void}
+ */
 void lvgl_demo_example(void)
 {
     static lv_obj_t *rect = NULL;
@@ -62,8 +53,14 @@ void lvgl_demo_example(void)
     lv_anim_start(&a);
 }
 
+/**
+ * @description:lvgl_task1任务 
+ * @param {void*} pvParameters
+ * @return {void}
+ */
 void Lvgl_Task1(void* pvParameters)
 {
+    //LED10闪烁是因为FSMC复用: PD8------> FSMC_D13
     lv_init();
     lv_port_disp_init();
     
@@ -75,6 +72,12 @@ void Lvgl_Task1(void* pvParameters)
         vTaskDelay(pdMS_TO_TICKS(5));
     }
 }
+
+/**
+ * @description:led_task任务,用于简单闪烁判断系统运行状态 
+ * @param {void*} pvParameters
+ * @return {void}
+ */
 void Led_Task(void* pvParameters)
 {
     while(1)
@@ -85,6 +88,11 @@ void Led_Task(void* pvParameters)
 }
 
 
+/**
+ * @description:启动任务用于创建其他任务并在末尾删除自身 
+ * @param {void*} pvParameters
+ * @return {void}
+ */
 void Start_Task(void* pvParameters)
 {
     //进入临界区
@@ -111,6 +119,11 @@ void Start_Task(void* pvParameters)
     /**************一定记得删除自身******************** */
     vTaskDelete(NULL);
 }
+
+/**
+ * @description:启动FreeRTOS 
+ * @return {void}
+ */
 void FreeRTOS_Start(void)
 {
 

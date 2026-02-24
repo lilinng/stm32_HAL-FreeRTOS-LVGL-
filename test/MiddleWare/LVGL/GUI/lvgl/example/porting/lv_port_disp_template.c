@@ -58,7 +58,7 @@ void lv_port_disp_init(void)
      * Create a buffer for drawing
      *----------------------------*/
 
-     /****************************LVGL三种图形缓冲模式****************************************************** */
+     /****************************LVGL三种图形缓冲模式(只选择一种)****************************************************** */
     /**
      * LVGL requires a buffer where it internally draws the widgets.
      * Later this buffer will passed to your display driver's `flush_cb` to copy its content to your display.
@@ -134,6 +134,10 @@ void lv_port_disp_init(void)
  **********************/
 
 /*Initialize your display and the required peripherals.*/
+/**
+ * @description:此函数用于硬件层面的初始化 
+ * @return {void}
+ */
 static void disp_init(void)
 {
     /*You code here*/
@@ -144,6 +148,14 @@ static void disp_init(void)
 /*Flush the content of the internal buffer the specific area on the display
  *You can use DMA or any hardware acceleration to do this operation in the background but
  *'lv_disp_flush_ready()' has to be called when finished.*/
+
+/**
+ * @description: 此函数是lvgl与硬件层的接口，在里面实现驱动层
+ * @param {lv_disp_drv_t *} disp_drv
+ * @param {lv_area_t *} area
+ * @param {lv_color_t *} color_p
+ * @return {void}
+ */
 static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
 {
     // 1. 转换LVGL的区域坐标（适配ILI9341的240×320）
