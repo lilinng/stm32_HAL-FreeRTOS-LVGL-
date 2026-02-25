@@ -2,7 +2,7 @@
 /*
  * @Author: userName userEmail
  * @Date: 2026-02-24 22:10:03
- * @LastEditTime: 2026-02-25 01:41:04
+ * @LastEditTime: 2026-02-25 20:08:30
  * @FilePath: \test_EIDEd:\MCU\stm32\stm32_practise\VS+HAL\stm32_HAL-FreeRTOS-LVGL-\test\Core\Src\main.c
  * @Description: 此项目用于FreeRTOS+LVGL,基于stm32F103VET6实现.
  * 外设LCD使用ILI9341作为驱动芯片,使用FSMC进行16位并行传输
@@ -26,6 +26,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "spi.h"
 #include "usart.h"
 #include "gpio.h"
 #include "fsmc.h"
@@ -33,6 +34,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "LVGL_demo.h"
+#include "Touch_XPT2046.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -98,17 +100,20 @@ int main(void)
   MX_GPIO_Init();
   MX_USART1_UART_Init();
   MX_FSMC_Init();
+  MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
 
+  HAL_Delay(500);
   FreeRTOS_Start();
 
   /* USER CODE END 2 */
+
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
     /* USER CODE END WHILE */
- 
+
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */

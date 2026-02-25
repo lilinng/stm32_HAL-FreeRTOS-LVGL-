@@ -28,6 +28,7 @@ virtualFolder:
                 - path: ../test/Core/Src/stm32f1xx_hal_msp.c
                 - path: ../test/Core/Src/stm32f1xx_hal_timebase_tim.c
                 - path: ../test/Core/Src/main.c
+                - path: ../test/Core/Src/spi.c
               folders: []
     - name: Drivers
       files: []
@@ -53,6 +54,7 @@ virtualFolder:
             - path: ../test/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_flash_ex.c
             - path: ../test/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_exti.c
             - path: ../test/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.c
+            - path: ../test/Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_spi.c
           folders: []
         - name: CMSIS
           files:
@@ -268,6 +270,7 @@ virtualFolder:
       files:
         - path: ../test/Hardware/Src/ILI9341.c
         - path: ../test/Hardware/Src/LCD.c
+        - path: ../test/Hardware/Src/Touch_XPT2046.c
       folders: []
 dependenceList: []
 outDir: build

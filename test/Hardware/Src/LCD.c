@@ -1,7 +1,7 @@
 /*
  * @Author: userName userEmail
  * @Date: 2024-02-24 11:59:31
- * @LastEditTime: 2026-02-24 22:41:27
+ * @LastEditTime: 2026-02-25 10:21:03
  * @FilePath: \test_EIDEd:\MCU\stm32\stm32_practise\VS+HAL\stm32_HAL-FreeRTOS-LVGL-\test\Hardware\Src\LCD.c
  * @Description: 提供了基于FSMC实现的对ILI9341的读写操作以及LCD的清屏和初始化函数
  */
@@ -79,7 +79,7 @@ void LCD_DrawPoint(uint16_t x, uint16_t y, uint16_t color)
 {
     if(x > 239 || y > 319) return;
     LCD_SetCursor(x, y);
-    LCD_WR_Data16(color);  // ✅ 直接发送16位颜色，不再拆分！
+    LCD_WR_Data16(color);  
 }
 
 /**
