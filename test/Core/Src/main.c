@@ -2,7 +2,7 @@
 /*
  * @Author: userName userEmail
  * @Date: 2026-02-24 22:10:03
- * @LastEditTime: 2026-02-25 20:08:30
+ * @LastEditTime: 2026-02-26 10:42:33
  * @FilePath: \test_EIDEd:\MCU\stm32\stm32_practise\VS+HAL\stm32_HAL-FreeRTOS-LVGL-\test\Core\Src\main.c
  * @Description: 此项目用于FreeRTOS+LVGL,基于stm32F103VET6实现.
  * 外设LCD使用ILI9341作为驱动芯片,使用FSMC进行16位并行传输
@@ -26,7 +26,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "spi.h"
+#include "tim.h"
 #include "usart.h"
 #include "gpio.h"
 #include "fsmc.h"
@@ -66,7 +66,12 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+void Delay_us(uint16_t us)
+{
+    if (us == 0) return;
+    TIM6->CNT = 0;                          // 清零计数器
+    while (TIM6->CNT < us);                 // 等待 CNT 达到 us
+}
 /* USER CODE END 0 */
 
 /**
@@ -100,12 +105,13 @@ int main(void)
   MX_GPIO_Init();
   MX_USART1_UART_Init();
   MX_FSMC_Init();
-  MX_SPI1_Init();
+  MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
 
+  HAL_TIM_Base_Start(&htim6);
   HAL_Delay(500);
   FreeRTOS_Start();
-
+  
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -196,8 +202,8 @@ void Error_Handler(void)
   while (1)
   {
     /**************PB6LED闪烁代表进入error*****************/
-    HAL_GPIO_TogglePin(GPIOB,GPIO_PIN_6);
-    HAL_Delay(500);
+    // HAL_GPIO_TogglePin(GPIOB,GPIO_PIN_6);
+    // HAL_Delay(500);
   }
   /* USER CODE END Error_Handler_Debug */
 }

@@ -65,7 +65,7 @@ void ILI9341_Init(void)
   LCD_WR_Data16(0xBE);
 
   LCD_WR_Cmd(0x36);    // Memory Access Control - 设置显示方向
-  LCD_WR_Data16(0x48); // MY=1, MX=0, MV=0, ML=0, BGR=1
+  LCD_WR_Data16(0x48); 
 
   LCD_WR_Cmd(0x3A);    // Pixel Format Set - 16位模式
   LCD_WR_Data16(0x55); // 16位/像素

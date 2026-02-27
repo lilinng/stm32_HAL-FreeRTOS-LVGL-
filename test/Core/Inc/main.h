@@ -53,12 +53,11 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
+void Delay_us(uint16_t us);
 
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define SPICS_Pin GPIO_PIN_9
-#define SPICS_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

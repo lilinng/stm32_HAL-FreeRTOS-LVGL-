@@ -82,8 +82,8 @@ void lv_port_disp_init(void)
 
     /* Example for 1) */
     static lv_disp_draw_buf_t draw_buf_dsc_1;
-    static lv_color_t buf_1[MY_DISP_HOR_RES * 10];                          /*A buffer for 10 rows*/
-    lv_disp_draw_buf_init(&draw_buf_dsc_1, buf_1, NULL, MY_DISP_HOR_RES * 10);   /*Initialize the display buffer*/
+    static lv_color_t buf_1[MY_DISP_HOR_RES * 30];                          /*A buffer for 10 rows*/
+    lv_disp_draw_buf_init(&draw_buf_dsc_1, buf_1, NULL, MY_DISP_HOR_RES * 30);   /*Initialize the display buffer*/
 
     // /* Example for 2) */
     // static lv_disp_draw_buf_t draw_buf_dsc_2;
@@ -158,20 +158,37 @@ static void disp_init(void)
  */
 static void disp_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p)
 {
-    // 1. 转换LVGL的区域坐标（适配ILI9341的240×320）
     uint16_t x1 = area->x1;
     uint16_t y1 = area->y1;
     uint16_t x2 = area->x2;
     uint16_t y2 = area->y2;
 
-    // 2. 设置LCD的刷新区域
+    uint16_t width = x2 - x1 + 1;
+    uint16_t height = y2 - y1 + 1;
+
+    // 注意：LVGL 的 color_p 是按行存储的（row-major）
+    // 我们需要对每一行做水平翻转（左右颠倒）
+    uint16_t *pixels = (uint16_t *)color_p; // RGB565
+
+    for (uint16_t y = 0; y < height; y++) {
+        uint16_t *row = pixels + y * width;
+        uint16_t left = 0;
+        uint16_t right = width - 1;
+        while (left < right) {
+            uint16_t temp = row[left];
+            row[left] = row[right];
+            row[right] = temp;
+            left++;
+            right--;
+        }
+    }
+
+    // 使用原始坐标设置窗口（不要任何 X 映射！）
     LCD_SetWindows(x1, y1, x2, y2);
 
-    // 3. 计算需要写入的像素总数，批量写入（核心优化）
-    uint32_t pixel_num = (x2 - x1 + 1) * (y2 - y1 + 1);
-    LCD_WriteMultiData((uint16_t *)color_p, pixel_num);  // lv_color_t本质是16位颜色
+    // 写入已翻转的像素数据
+    LCD_WriteMultiData((uint16_t *)color_p, (uint32_t)width * height);
 
-    // 4. 必须告诉LVGL刷新完成（否则LVGL会卡死）
     lv_disp_flush_ready(disp_drv);
 }
 

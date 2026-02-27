@@ -1,7 +1,7 @@
 /*
  * @Author: userName userEmail
  * @Date: 2024-02-24 11:59:31
- * @LastEditTime: 2026-02-25 10:21:03
+ * @LastEditTime: 2026-02-26 20:26:48
  * @FilePath: \test_EIDEd:\MCU\stm32\stm32_practise\VS+HAL\stm32_HAL-FreeRTOS-LVGL-\test\Hardware\Src\LCD.c
  * @Description: 提供了基于FSMC实现的对ILI9341的读写操作以及LCD的清屏和初始化函数
  */
@@ -9,6 +9,10 @@
 #include "fsmc.h"
 #include "LCD.h"
 #include "ILI9341.h"
+
+#define LCD_WIDTH  240  // 竖屏宽度
+#define LCD_HEIGHT 320  // 竖屏高度
+#define X_OFFSET   100  // 偏移
 
 /**
  * @description: 向ILI9341发送command
@@ -92,30 +96,33 @@ void LCD_DrawPoint(uint16_t x, uint16_t y, uint16_t color)
  */
 void LCD_SetWindows(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2)
 {
-    // 可选：添加坐标校验（推荐）
-    if (x1 > 239) x1 = 239;
-    if (x2 > 239) x2 = 239;
-    if (y1 > 319) y1 = 319;
-    if (y2 > 319) y2 = 319;
-    if (x1 > x2) { uint16_t t = x1; x1 = x2; x2 = t; }
-    if (y1 > y2) { uint16_t t = y1; y1 = y2; y2 = t; }
+    /******** 核心修改：仅加这几行，把LVGL的X坐标映射到屏幕右侧 ********/
+    uint16_t ctrl_width = x2 - x1 + 1; // 计算控件/显示区域的宽度
+    // 核心逻辑：把LVGL传入的「左侧区域」映射到LCD的「右侧区域」
+    // 公式：新X起始 = 屏幕总宽度 - 控件宽度 - LVGL传入的X起始
+    uint16_t new_x1 = LCD_WIDTH - ctrl_width - x1;
+    uint16_t new_x2 = new_x1 + ctrl_width - 1;
 
-    // 列地址设置（0x2A）
-    LCD_WR_Cmd(0x2A);
-    LCD_WR_Data8((x1 >> 8) & 0xFF);
-    LCD_WR_Data8(x1 & 0xFF);
-    LCD_WR_Data8((x2 >> 8) & 0xFF);
-    LCD_WR_Data8(x2 & 0xFF);
+    // 安全校验：避免超出屏幕边界（防止new_x1/new_x2越界）
+    if(new_x1 >= LCD_WIDTH) new_x1 = LCD_WIDTH - 1;
+    if(new_x2 >= LCD_WIDTH) new_x2 = LCD_WIDTH - 1;
+    if(new_x1 > new_x2) { uint16_t t = new_x1; new_x1 = new_x2; new_x2 = t; }
+    /************************ 核心修改结束 ************************/
 
-    // 行地址设置（0x2B）
-    LCD_WR_Cmd(0x2B);
-    LCD_WR_Data8((y1 >> 8) & 0xFF);
+    // 下面的原始代码完全不动（只是把x1/x2换成new_x1/new_x2）
+    LCD_WR_Cmd(0x2A);  // 设置列地址（X轴）
+    LCD_WR_Data8(new_x1 >> 8);
+    LCD_WR_Data8(new_x1 & 0xFF);
+    LCD_WR_Data8(new_x2 >> 8);
+    LCD_WR_Data8(new_x2 & 0xFF);
+
+    LCD_WR_Cmd(0x2B);  // 设置行地址（Y轴）
+    LCD_WR_Data8(y1 >> 8);
     LCD_WR_Data8(y1 & 0xFF);
-    LCD_WR_Data8((y2 >> 8) & 0xFF);
+    LCD_WR_Data8(y2 >> 8);
     LCD_WR_Data8(y2 & 0xFF);
 
-    // 准备写入GRAM
-    LCD_WR_Cmd(0x2C);
+    LCD_WR_Cmd(0x2C);  // 开始写入像素数据
 }
 
 /**

@@ -1,7 +1,7 @@
 /*
  * @Author: userName userEmail
  * @Date: 2026-02-24 21:14:15
- * @LastEditTime: 2026-02-25 20:00:36
+ * @LastEditTime: 2026-02-27 11:09:30
  * @FilePath: \test_EIDEd:\MCU\stm32\stm32_practise\VS+HAL\stm32_HAL-FreeRTOS-LVGL-\test\MiddleWare\LVGL\GUI_APP\LVGL_demo.c
  * @Description: 用于测试FreeRTOS和LVGL的demo
  */
@@ -11,8 +11,7 @@
 #include "task.h"
 #include "lvgl.h"
 #include "lv_port_disp_template.h"
-#include "lv_port_indev_template.h"
-#include "Touch_XPT2046.h"
+#include "mainstart.h"
 #include "usart.h"
 
 /*****启动任务参数*****/
@@ -35,72 +34,10 @@ int16_t touch_x = 0;
 int16_t touch_y = 0;
 bool touch_pressed = false;
 
-/**
- * @brief 获取当前触摸坐标
- * @return {void}
- */
-void get_touch_coordinates(void)
+
+void LVGL_Printf_CallBack(const char * buf)
 {
-    // 定义临时变量存储原始坐标和校准后坐标（匹配XPT2046驱动的数据类型）
-    uint16_t raw_x = 0, raw_y = 0;
-    uint16_t cal_x = 0, cal_y = 0;
-
-    // 1. 读取触摸按压状态，赋值给全局变量（和lv_port_indev_template.c中逻辑一致）
-    touch_pressed = Touch_Cache.PRESS;
-
-    // 2. 如果触摸被按下，读取并校准坐标；未按下则坐标置0
-    if(touch_pressed)
-    {
-        // 读取原始触摸坐标（返回0表示读取成功，非0表示读取失败）
-        if(Touch_read_raw_xy(&raw_x, &raw_y) == 0)
-        {
-            // 对原始ADC坐标进行校准，转换为屏幕实际像素坐标
-            Touch_Calibrate(raw_x, raw_y, &cal_x, &cal_y);
-            
-            // 将校准后的坐标赋值给全局变量（转换为int16_t，匹配全局变量类型）
-            touch_x = (int16_t)cal_x;
-            touch_y = (int16_t)cal_y;
-        }
-        else
-        {
-            // 原始坐标读取失败，置0避免无效值
-            touch_x = 0;
-            touch_y = 0;
-        }
-
-    }
-    else
-    {
-        // 触摸未按压，坐标置0
-        touch_x = 0;
-        touch_y = 0;
-    }    
-    printf("x:%d\ty:%d\r\n",cal_x,cal_y);
-
-}
-/**
- * @description: lvgl任务中调用的显示示例
- * @return {void}
- */
-void lvgl_demo_example(void)
-{
-    static lv_obj_t *rect = NULL;
-    if(rect == NULL) {
-        rect = lv_obj_create(lv_scr_act());
-        lv_obj_set_size(rect, 40, 40);
-        lv_obj_set_style_bg_color(rect, lv_color_hex(0x00FF00), 0); // 绿色
-        lv_obj_align(rect, LV_ALIGN_TOP_LEFT, 20, 50);
-    }
-
-    lv_anim_t a;
-    lv_anim_init(&a);
-    lv_anim_set_var(&a, rect);
-    lv_anim_set_exec_cb(&a, (lv_anim_exec_xcb_t)lv_obj_set_x);
-    lv_anim_set_values(&a, 20, 180);
-    lv_anim_set_time(&a, 1500);
-    lv_anim_set_playback_time(&a, 1500);
-    lv_anim_set_repeat_count(&a, LV_ANIM_REPEAT_INFINITE);
-    lv_anim_start(&a);
+    HAL_UART_Transmit(&huart1,(uint8_t*)buf,strlen(buf),HAL_MAX_DELAY);
 }
 
 /**
@@ -112,15 +49,14 @@ void Lvgl_Task1(void* pvParameters)
 {
     //LED10闪烁是因为FSMC复用: PD8------> FSMC_D13
     lv_init();
+    lv_log_register_print_cb(LVGL_Printf_CallBack);
+    LV_LOG_INFO("LVGL init success!");
     lv_port_disp_init();
-    lv_port_indev_init();
-    lvgl_demo_example();
-
+     mainstart();
     while (1) 
     {
         lv_timer_handler();
-        get_touch_coordinates();
-        vTaskDelay(pdMS_TO_TICKS(5));
+        vTaskDelay(5);  //无需使用pd,配置为1kHz
     }
 }
 
@@ -156,14 +92,14 @@ void Start_Task(void* pvParameters)
                 (UBaseType_t)LVGL_TASK1_PRIORITY,
                 (TaskHandle_t*)&Lvgl_Task_Handle
                 );
-    xTaskCreate(
-                (TaskFunction_t)Led_Task,
-                (char*)"led_task",
-                (uint32_t)LED_TASK_STACK_SIZE,
-                (void*)NULL,
-                (UBaseType_t)LED_TASK_PRIORITY,
-                (TaskHandle_t*)&Led_Task_Handle
-                );
+    // xTaskCreate(
+    //             (TaskFunction_t)Led_Task,
+    //             (char*)"led_task",
+    //             (uint32_t)LED_TASK_STACK_SIZE,
+    //             (void*)NULL,
+    //             (UBaseType_t)LED_TASK_PRIORITY,
+    //             (TaskHandle_t*)&Led_Task_Handle
+    //             );
                                  
     //退出临界区                
     taskEXIT_CRITICAL();
@@ -186,7 +122,14 @@ void FreeRTOS_Start(void)
                 (UBaseType_t)START_TASK_PRIORITY,
                 (TaskHandle_t*)&Start_Task_Handle
                 );
-
+    xTaskCreate(
+                (TaskFunction_t)Led_Task,
+                (char*)"led_task",
+                (StackType_t)LED_TASK_STACK_SIZE,
+                (void*)NULL,
+                (UBaseType_t)LED_TASK_PRIORITY,
+                (TaskHandle_t*)&Led_Task_Handle
+    );
     //启动调度器
     vTaskStartScheduler();     
 }

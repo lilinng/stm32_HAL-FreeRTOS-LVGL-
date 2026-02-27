@@ -28,7 +28,7 @@ virtualFolder:
                 - path: ../test/Core/Src/stm32f1xx_hal_msp.c
                 - path: ../test/Core/Src/stm32f1xx_hal_timebase_tim.c
                 - path: ../test/Core/Src/main.c
-                - path: ../test/Core/Src/spi.c
+                - path: ../test/Core/Src/tim.c
               folders: []
     - name: Drivers
       files: []
@@ -259,9 +259,9 @@ virtualFolder:
           files:
             - path: ../test/MiddleWare/LVGL/GUI_APP/LVGL_demo.c
           folders:
-            - name: demo
+            - name: mainstart
               files:
-                - path: ../test/MiddleWare/LVGL/GUI_APP/demos/stress/lv_demo_stress.c
+                - path: ../test/MiddleWare/LVGL/GUI_APP/mainstart/mainstart.c
               folders: []
     - name: ::CMSIS
       files: []
@@ -270,7 +270,9 @@ virtualFolder:
       files:
         - path: ../test/Hardware/Src/ILI9341.c
         - path: ../test/Hardware/Src/LCD.c
-        - path: ../test/Hardware/Src/Touch_XPT2046.c
+      folders: []
+    - name: Software_Driver
+      files: []
       folders: []
 dependenceList: []
 outDir: build
@@ -297,7 +299,7 @@ targets:
         - ../test/MDK-ARM/RTE/_test
         - ../test/Hardware/Inc
         - ../test/MiddleWare/LVGL/GUI_APP
-        - ../test/MiddleWare/LVGL/GUI_APP/demos/stress
+        - ../test/MiddleWare/LVGL/GUI_APP/mainstart
       libList: []
     excludeList: []
     toolchain: AC5
@@ -419,4 +421,14 @@ targets:
         bin: ""
         interface: stlink-v2
         target: stm32f1x
-    uploader: OpenOCD
+      STLink:
+        address: "0x8000000"
+        bin: ""
+        elFile: None
+        optionBytes: .eide/test.st.option.bytes.ini
+        otherCmds: ""
+        proType: SWD
+        resetMode: default
+        runAfterProgram: true
+        speed: 4000
+    uploader: STLink

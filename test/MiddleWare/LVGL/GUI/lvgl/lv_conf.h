@@ -20,36 +20,40 @@
 #include <stdint.h>
 
 /*====================
-   COLOR SETTINGS
+   COLOR SETTINGS   //颜色设置
  *====================*/
  
 /*Color depth: 1 (1 byte per pixel), 8 (RGB332), 16 (RGB565), 32 (ARGB8888)*/
+//色位长
 #define LV_COLOR_DEPTH 16
 
 /*Swap the 2 bytes of RGB565 color. Useful if the display has an 8-bit interface (e.g. SPI)*/
+//反转颜色
 #define LV_COLOR_16_SWAP 0
 
 /*Enable more complex drawing routines to manage screens transparency.
  *Can be used if the UI is above another layer, e.g. an OSD menu or video player.
  *Requires `LV_COLOR_DEPTH = 32` colors and the screen's `bg_opa` should be set to non LV_OPA_COVER value*/
+//启用屏幕透明度(用于重叠GUI等),必须#define LV_COLOR_DEPTH 32
 #define LV_COLOR_SCREEN_TRANSP 0
 
 /* Adjust color mix functions rounding. GPUs might calculate color mix (blending) differently.
  * 0: round down, 64: round up from x.75, 128: round up from half, 192: round up from x.25, 254: round up */
+//调整颜色混合功能
 #define LV_COLOR_MIX_ROUND_OFS (LV_COLOR_DEPTH == 32 ? 0: 128)
 
 /*Images pixels with this color will not be drawn if they are chroma keyed)*/
 #define LV_COLOR_CHROMA_KEY lv_color_hex(0x00ff00)         /*pure green*/
 
 /*=========================
-   MEMORY SETTINGS
+   MEMORY SETTINGS  //内存设置
  *=========================*/
 
 /*1: use custom malloc/free, 0: use the built-in `lv_mem_alloc()` and `lv_mem_free()`*/
-#define LV_MEM_CUSTOM 0
+#define LV_MEM_CUSTOM 0     //使用lvgl的内存算法或者三方算法
 #if LV_MEM_CUSTOM == 0
     /*Size of the memory available for `lv_mem_alloc()` in bytes (>= 2kB)*/
-    #define LV_MEM_SIZE (10U * 1024U)          /*[bytes]*/
+    #define LV_MEM_SIZE (30U * 1024U)          /*[bytes]*/
 
     /*Set an address for the memory pool instead of allocating it as a normal array. Can be in external SRAM too.*/
     #define LV_MEM_ADR 0     /*0: unused*/
@@ -74,13 +78,15 @@
 #define LV_MEMCPY_MEMSET_STD 0
 
 /*====================
-   HAL SETTINGS
+   HAL SETTINGS //硬件设置
  *====================*/
 
 /*Default display refresh period. LVG will redraw changed areas with this period time*/
-#define LV_DISP_DEF_REFR_PERIOD 30      /*[ms]*/
+//显示刷新周期
+#define LV_DISP_DEF_REFR_PERIOD 20      /*[ms]*/
 
 /*Input device read period in milliseconds*/
+//输入设备的读取周期
 #define LV_INDEV_DEF_READ_PERIOD 30     /*[ms]*/
 
 /*Use a custom tick source that tells the elapsed time in milliseconds.
@@ -93,14 +99,15 @@
 
 /*Default Dot Per Inch. Used to initialize default sizes such as widgets sized, style paddings.
  *(Not so important, you can adjust it to modify default sizes and spaces)*/
+//每英寸像素数量
 #define LV_DPI_DEF 130     /*[px/inch]*/
 
 /*=======================
- * FEATURE CONFIGURATION
+ * FEATURE CONFIGURATION    //特征选项
  *=======================*/
 
 /*-------------
- * Drawing
+ * Drawing  //绘制设置
  *-----------*/
 
 /*Enable complex draw engine.
@@ -158,6 +165,7 @@
  *-----------*/
 
 /*Use STM32's DMA2D (aka Chrom Art) GPU*/
+//使/失能DMA2D
 #define LV_USE_GPU_STM32_DMA2D 0
 #if LV_USE_GPU_STM32_DMA2D
     /*Must be defined to include path of CMSIS header of target processor
@@ -190,11 +198,12 @@
 #endif
 
 /*-------------
- * Logging
+ * Logging  //日志
  *-----------*/
 
 /*Enable the log module*/
-#define LV_USE_LOG 0
+//启用日志
+#define LV_USE_LOG 1
 #if LV_USE_LOG
 
     /*How important log should be added:
@@ -204,13 +213,15 @@
     *LV_LOG_LEVEL_ERROR       Only critical issue, when the system may fail
     *LV_LOG_LEVEL_USER        Only logs added by the user
     *LV_LOG_LEVEL_NONE        Do not log anything*/
-    #define LV_LOG_LEVEL LV_LOG_LEVEL_WARN
+    #define LV_LOG_LEVEL LV_LOG_LEVEL_INFO
 
     /*1: Print the log with 'printf';
     *0: User need to register a callback with `lv_log_register_print_cb()`*/
+   //使用printf或者注册回调函数
     #define LV_LOG_PRINTF 0
 
     /*Enable/disable LV_LOG_TRACE in modules that produces a huge number of logs*/
+    //输出内容配置
     #define LV_LOG_TRACE_MEM        1
     #define LV_LOG_TRACE_TIMER      1
     #define LV_LOG_TRACE_INDEV      1
@@ -223,7 +234,7 @@
 #endif  /*LV_USE_LOG*/
 
 /*-------------
- * Asserts
+ * Asserts  //断言设置
  *-----------*/
 
 /*Enable asserts if an operation is failed or an invalid data is found.
@@ -243,7 +254,8 @@
  *-----------*/
 
 /*1: Show CPU usage and FPS count*/
-#define LV_USE_PERF_MONITOR 0
+//显示cpu使用率以及帧率
+#define LV_USE_PERF_MONITOR 1
 #if LV_USE_PERF_MONITOR
     #define LV_USE_PERF_MONITOR_POS LV_ALIGN_BOTTOM_RIGHT
 #endif
@@ -278,7 +290,7 @@
 #endif /*LV_ENABLE_GC*/
 
 /*=====================
- *  COMPILER SETTINGS
+ *  COMPILER SETTINGS   //编译器设置
  *====================*/
 
 /*For big endian systems set to 1*/
@@ -320,16 +332,16 @@
 #define LV_USE_LARGE_COORD 0
 
 /*==================
- *   FONT USAGE
+ *   FONT USAGE //字库设置
  *===================*/
 
 /*Montserrat fonts with ASCII range and some symbols using bpp = 4
  *https://fonts.google.com/specimen/Montserrat*/
 #define LV_FONT_MONTSERRAT_8  0
 #define LV_FONT_MONTSERRAT_10 0
-#define LV_FONT_MONTSERRAT_12 0
+#define LV_FONT_MONTSERRAT_12 1
 #define LV_FONT_MONTSERRAT_14 1
-#define LV_FONT_MONTSERRAT_16 0
+#define LV_FONT_MONTSERRAT_16 1
 #define LV_FONT_MONTSERRAT_18 0
 #define LV_FONT_MONTSERRAT_20 0
 #define LV_FONT_MONTSERRAT_22 0
@@ -337,7 +349,7 @@
 #define LV_FONT_MONTSERRAT_26 0
 #define LV_FONT_MONTSERRAT_28 0
 #define LV_FONT_MONTSERRAT_30 0
-#define LV_FONT_MONTSERRAT_32 0
+#define LV_FONT_MONTSERRAT_32 1
 #define LV_FONT_MONTSERRAT_34 0
 #define LV_FONT_MONTSERRAT_36 0
 #define LV_FONT_MONTSERRAT_38 0
@@ -360,6 +372,7 @@
 /*Optionally declare custom fonts here.
  *You can use these fonts as default font too and they will be available globally.
  *E.g. #define LV_FONT_CUSTOM_DECLARE   LV_FONT_DECLARE(my_font_1) LV_FONT_DECLARE(my_font_2)*/
+//声明自定义字体
 #define LV_FONT_CUSTOM_DECLARE
 
 /*Always set a default font*/
@@ -427,7 +440,7 @@
 #define LV_USE_ARABIC_PERSIAN_CHARS 0
 
 /*==================
- *  WIDGET USAGE
+ *  WIDGET USAGE    //核心控件设置
  *================*/
 
 /*Documentation of the widgets: https://docs.lvgl.io/latest/en/html/widgets/index.html*/
@@ -475,7 +488,7 @@
 #define LV_USE_TABLE      1
 
 /*==================
- * EXTRA COMPONENTS
+ * EXTRA COMPONENTS //拓展功能
  *==================*/
 
 /*-----------
@@ -564,7 +577,7 @@
 #define LV_USE_GRID 1
 
 /*---------------------
- * 3rd party libraries
+ * 3rd party libraries  //三方库
  *--------------------*/
 
 /*File system interfaces for common APIs */
@@ -665,7 +678,7 @@
 #define LV_BUILD_EXAMPLES 1
 
 /*===================
- * DEMO USAGE
+ * DEMO USAGE   //实例
  ====================*/
 
 /*Show some widget. It might be required to increase `LV_MEM_SIZE` */

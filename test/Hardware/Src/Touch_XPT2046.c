@@ -1,39 +1,74 @@
 /*
  * @Author: userName userEmail
  * @Date: 2026-02-25 10:52:48
- * @LastEditTime: 2026-02-25 19:55:02
+ * @LastEditTime: 2026-02-26 19:11:55
  * @FilePath: \test_EIDEd:\MCU\stm32\stm32_practise\VS+HAL\stm32_HAL-FreeRTOS-LVGL-\test\Hardware\Src\Touch_XPT2046.c
  * @Description: 
  */
 #include "stm32f1xx_hal.h"
-#include "spi.h"
+#include "usart.h"
 #include "Touch_XPT2046.h"
 
-Touch_t Touch_Cache = {0};
-
-uint8_t Rx_Data[2] = {0};
-
-void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+// void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+// {
+//     if (GPIO_Pin == GPIO_PIN_8)
+//     {
+//         // HAL_GPIO_WritePin(GPIOB,GPIO_PIN_6,GPIO_PIN_RESET);
+//     }
+// }
+static void XPT2046_Read(uint16_t* x,uint16_t* y)
 {
-    if (GPIO_Pin == GPIO_PIN_8)
+    uint16_t x_raw,y_raw;
+    uint8_t cmd = 0xD0;
+    //x
+    if(HAL_GPIO_ReadPin(PEN_GPIO_Port,PEN_Pin) == GPIO_PIN_SET)
     {
-        if(HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_8) == GPIO_PIN_RESET)
+        return;
+    }
+    MYSPI_W_CLK(0);
+    MYSPI_W_MOSI(0);
+    MYSPI_W_CS(0);
+    for(int i = 0;i < 8;i++)
+    {
+        if(cmd&0x80)
         {
-            HAL_Delay(1);
-            if(HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_8) == GPIO_PIN_RESET)
-            {
-                Touch_Cache.PRESS = true;
-            }
-            else
-            {
-                Touch_Cache.PRESS = false;
-            }
+            MYSPI_W_MOSI(1);
         }
         else
         {
-            Touch_Cache.PRESS = false;
+            MYSPI_W_MOSI(0);
+        }
+        cmd<<=1;
+        MYSPI_W_CLK(0);
+        Delay_us(1);
+        MYSPI_W_CLK(1);
+    }
+
+    Delay_us(6);
+    MYSPI_W_CLK(0);
+    Delay_us(1);
+    MYSPI_W_CLK(1);
+    Delay_us(1);
+    MYSPI_W_CLK(0);
+
+    for(int i = 0;i < 16;i++)
+    {
+        x_raw <<= 1;
+        MYSPI_W_CLK(0);
+        Delay_us(1);
+        MYSPI_W_CLK(1);
+        if(MYSPI_R_MISO)
+        {
+            x_raw++;
         }
     }
+    x_raw >>= 4;
+    MYSPI_W_CS(1);
+
+    char buf[64];
+    int len = sprintf(buf, "Touch Raw: (%d, %d)\r\n", x_raw, y_raw);
+    HAL_UART_Transmit(&huart1, (uint8_t*)buf, len, 30);
+
 }
 /**
  * @description: 
@@ -41,48 +76,24 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
  */
 int8_t Touch_read_raw_xy(uint16_t* x,uint16_t* y)
 {
-    /******************流程图***********************/
-    /*人手触摸-->
-    进入EXTI中断-->
-    进行必要操作,如标记触摸事件等待read_xy任务-->
-    FreeRTOS调度到该任务-->
-    二次判断是否误触-->
-    禁用EXTI防止函数重入(手册建议)-->
-    计算得到x,y*/
+    uint16_t x_sum = 0,y_sum = 0;
+    uint16_t x_temp = 0,y_temp = 0;   
 
-    uint16_t x_temp = 0,y_temp = 0;
-    uint8_t tx_data;
-
-    //判断是否触摸(PEN引脚低电平)
-    if(HAL_GPIO_ReadPin(GPIOB,GPIO_PIN_8) == GPIO_PIN_SET)
-    {
-        return -1;
-    }
-    //禁用PEN中断
-    HAL_NVIC_DisableIRQ(EXTI9_5_IRQn);
     //读取数据,均值滤波
     for(int i = 0; i < 4;i++)
     {
-        //选中XPT2046,即拉低CS
-        HAL_GPIO_WritePin(SPICS_GPIO_Port,SPICS_Pin,GPIO_PIN_RESET);
-        tx_data = 0x90;
-        HAL_SPI_Transmit(&hspi1,&tx_data,sizeof(tx_data),HAL_MAX_DELAY);
-        HAL_SPI_Receive(&hspi1,Rx_Data,sizeof(Rx_Data),HAL_MAX_DELAY);
-        HAL_GPIO_WritePin(SPICS_GPIO_Port,SPICS_Pin,GPIO_PIN_SET);
-        x_temp += ((Rx_Data[0]<<8)|Rx_Data[1])>>4;
-
-        HAL_GPIO_WritePin(SPICS_GPIO_Port,SPICS_Pin,GPIO_PIN_RESET);
-        tx_data = 0xD0;
-        HAL_SPI_Transmit(&hspi1,&tx_data,sizeof(tx_data),HAL_MAX_DELAY);
-        HAL_SPI_Receive(&hspi1,Rx_Data,sizeof(Rx_Data),HAL_MAX_DELAY);
-        HAL_GPIO_WritePin(SPICS_GPIO_Port,SPICS_Pin,GPIO_PIN_SET);
-        y_temp += ((Rx_Data[0]<<8)|Rx_Data[1])>>4;
+        XPT2046_Read(&x_temp,&y_temp);     
+        x_sum += x_temp;
+        y_sum += y_temp;
     }
 
-    HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
-    *x = x_temp/4;
-    *y = y_temp/4;
+    *x = x_sum/4;
+    *y = y_sum/4;
+
+    // char buf[64];
+    // int len = sprintf(buf, "Touch111: (%d, %d)\r\n", *x, *y);
+    // HAL_UART_Transmit(&huart1, (uint8_t*)buf, len, 10);
 
     return 0;
 }
